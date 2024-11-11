@@ -37,25 +37,40 @@ app.post("/auth/register", async (req, res) => {
   // 필수 값 확인
   if (!username || !email || !password || !confirmPassword)
     return res
+
       .status(400)
-      .json({ message: "사용자 이름, 이메일, 비밀번호 및 비밀번호 확인 필요" });
+      .json({
+        code: "MISSING_FIELDS",
+        message: "사용자 이름, 이메일, 비밀번호 및 비밀번호 확인 필요",
+      });
 
   // 비밀번호와 확인 비밀번호가 일치하는지 확인
   if (password !== confirmPassword)
-    return res.status(400).json({ message: "비밀번호가 일치하지 않습니다" });
+    return res
+      .status(400)
+      .json({
+        code: "PASSWORD_MISMATCH",
+        message: "비밀번호가 일치하지 않습니다",
+      });
 
   // 비밀번호 유효성 검사 (8자 이상, 숫자, 영문자, 특수문자 포함)
   const passwordRegex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!%*#?&])[A-Za-z\d!%*#?&]{8,}$/;
   if (!passwordRegex.test(password))
-    return res.status(400).json({
-      message: "비밀번호는 8자 이상이어야 하며, 숫자, 영문자 및 특수문자(!%*#?&)를 포함해야 합니다",
-    });
+    return res
+      .status(400)
+      .json({
+        code: "INVALID_PASSWORD",
+        message:
+          "비밀번호는 8자 이상이어야 하며, 숫자, 영문자 및 특수문자(!%*#?&)를 포함해야 합니다",
+      });
 
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser)
-      return res.status(400).json({ message: "이미 등록된 이메일" });
+      return res
+        .status(400)
+        .json({ code: "EMAIL_EXISTS", message: "이미 등록된 이메일" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });
@@ -155,7 +170,8 @@ app.post("/boards", authenticateJWT, async (req, res) => {
   const { title, content, category } = req.body;
   const authorId = req.user.userId;
 
-  if (!title || !content || !category) { // 카테고리 유효성 검사 추가
+  if (!title || !content || !category) {
+    // 카테고리 유효성 검사 추가
     return res.status(400).json({ message: "제목, 내용 및 카테고리 필요" });
   }
 
@@ -214,9 +230,7 @@ app.put("/boards/:id", authenticateJWT, async (req, res) => {
 
     // 게시물 작성자와 로그인한 사용자가 일치하는지 확인
     if (board.authorId.toString() !== authorId.toString()) {
-      return res
-        .status(403)
-        .json({ message: "해당 게시물 작성자가 아님" });
+      return res.status(403).json({ message: "해당 게시물 작성자가 아님" });
     }
 
     // 게시물 업데이트
@@ -245,9 +259,7 @@ app.delete("/boards/:id", authenticateJWT, async (req, res) => {
     }
 
     if (board.authorId.toString() !== authorId.toString()) {
-      return res
-        .status(403)
-        .json({ message: "해당 게시물 작성자가 아님" });
+      return res.status(403).json({ message: "해당 게시물 작성자가 아님" });
     }
 
     await Board.findByIdAndDelete(id); // 변경 사항

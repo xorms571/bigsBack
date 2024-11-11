@@ -42,20 +42,20 @@ app.post("/auth/register", async (req, res) => {
 
   // 비밀번호와 확인 비밀번호가 일치하는지 확인
   if (password !== confirmPassword)
-    return res.status(401).json({ message: "비밀번호가 일치하지 않습니다" });
+    return res.status(400).json({ message: "비밀번호가 일치하지 않습니다" });
 
   // 비밀번호 유효성 검사 (8자 이상, 숫자, 영문자, 특수문자 포함)
   const passwordRegex =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!%*#?&])[A-Za-z\d!%*#?&]{8,}$/;
   if (!passwordRegex.test(password))
-    return res.status(402).json({
+    return res.status(400).json({
       message: "비밀번호는 8자 이상이어야 하며, 숫자, 영문자 및 특수문자(!%*#?&)를 포함해야 합니다",
     });
 
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser)
-      return res.status(403).json({ message: "이미 등록된 이메일" });
+      return res.status(400).json({ message: "이미 등록된 이메일" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ username, email, password: hashedPassword });

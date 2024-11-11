@@ -189,7 +189,7 @@ app.get("/boards/:id", authenticateJWT, async (req, res) => {
 
 app.put("/boards/:id", authenticateJWT, async (req, res) => {
   const { id } = req.params;
-  const { title, content } = req.body;
+  const { title, content, category } = req.body;
   const authorId = req.user.userId;
 
   try {
@@ -208,6 +208,7 @@ app.put("/boards/:id", authenticateJWT, async (req, res) => {
     // 게시물 업데이트
     board.title = title || board.title;
     board.content = content || board.content;
+    board.category = category || board.category;
     await board.save();
 
     res.json({ message: "게시물 수정 완료", board });

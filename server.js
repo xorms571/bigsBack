@@ -73,7 +73,7 @@ app.post("/auth/register", async (req, res) => {
         .json({ code: "EMAIL_EXISTS", message: "이미 등록된 이메일" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({ username, email, password: hashedPassword, confirmPassword });
     await newUser.save();
 
     // JWT 토큰 생성

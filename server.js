@@ -11,6 +11,7 @@ const Board = require("./models/Board");
 const authenticateJWT = require("./middlewares/auth");
 
 dotenv.config();
+const port = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -246,6 +247,6 @@ app.delete("/boards/:id", authenticateJWT, async (req, res) => {
 
 // ------------------------- 서버 시작 -------------------------
 
-app.listen(process.env.PORT, () => {
-  console.log(`서버 연결: http://localhost:${process.env.PORT}`);
+app.listen(port, () => {
+  console.log(`서버 연결: http://localhost:${port}`);
 });

@@ -32,12 +32,25 @@ const generateRefreshToken = (user) =>
 // ------------------------- 회원가입 API -------------------------
 
 app.post("/auth/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, confirmPassword } = req.body;
 
-  if (!username || !email || !password)
+  // 필수 값 확인
+  if (!username || !email || !password || !confirmPassword)
     return res
       .status(400)
-      .json({ message: "사용자 이름, 이메일 및 비밀번호 필요" });
+      .json({ message: "사용자 이름, 이메일, 비밀번호 및 비밀번호 확인 필요" });
+
+  // 비밀번호와 확인 비밀번호가 일치하는지 확인
+  if (password !== confirmPassword)
+    return res.status(400).json({ message: "비밀번호가 일치하지 않습니다" });
+
+  // 비밀번호 유효성 검사 (8자 이상, 숫자, 영문자, 특수문자 포함)
+  const passwordRegex =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!%*#?&])[A-Za-z\d!%*#?&]{8,}$/;
+  if (!passwordRegex.test(password))
+    return res.status(400).json({
+      message: "비밀번호는 8자 이상이어야 하며, 숫자, 영문자 및 특수문자(!%*#?&)를 포함해야 합니다",
+    });
 
   try {
     const existingUser = await User.findOne({ email });

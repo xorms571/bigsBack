@@ -7,7 +7,10 @@ router.post("/", (req, res) => {
   if (!refreshToken) return res.sendStatus(401);
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) {
+      console.error("JWT verification failed:", err); // 오류 메시지 출력
+      return res.sendStatus(403);
+    }
 
     const accessToken = generateAccessToken({
       userId: user.userId,
